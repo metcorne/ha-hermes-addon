@@ -1,6 +1,7 @@
 ARG BUILD_VERSION=dev
 ARG BUILD_ARCH=amd64
 FROM nousresearch/hermes-agent:stable
+RUN /usr/local/bin/uv pip install pyyaml
 
 ARG BUILD_VERSION
 ARG BUILD_ARCH
