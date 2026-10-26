@@ -29,4 +29,4 @@ nginx -g 'daemon off;' &
 NGINX_PID=$!
 
 echo "Starting Hermes gateway with dashboard on internal port 9120"
-exec hermes gateway run
+exec hermes gateway run --port 9120 --host 127.0.0.1
