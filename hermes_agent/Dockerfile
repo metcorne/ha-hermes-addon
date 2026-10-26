@@ -2,6 +2,7 @@ ARG BUILD_VERSION=dev
 ARG BUILD_ARCH=amd64
 FROM nousresearch/hermes-agent:stable
 
+RUN python3 -c "from pm.install import uv_launcher; import subprocess; uv=uv_launcher('uv'); subprocess.run([uv, 'pip', 'install', 'pyyaml'], check=True)"
 RUN python3 -m pip install pyyaml
 
 ARG BUILD_VERSION
