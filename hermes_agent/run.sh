@@ -4,7 +4,7 @@ set -euo pipefail
 OPTIONS_FILE="/data/options.json"
 HERMES_DATA_DIR="/data"
 WORKSPACE_DIR="${HERMES_DATA_DIR}/workspace"
-INTERNAL_API_KEY_FILE="${HERMES_DATA_DIR}/.ha_api_server_key"
+INTERNAL_API_KEY_FILE="/data/.ha_api_server_key"
 HERMES_PYTHON="/opt/hermes/.venv/bin/python"
 
 if [ ! -f "${OPTIONS_FILE}" ]; then
@@ -19,7 +19,6 @@ if [ ! -f "${INTERNAL_API_KEY_FILE}" ]; then
   "${HERMES_PYTHON}" - <<'PY'
 from pathlib import Path
 import secrets
-
 path = Path('/data/.ha_api_server_key')
 path.write_text(secrets.token_hex(32) + '\n', encoding='utf-8')
 path.chmod(0o600)
@@ -30,7 +29,6 @@ fi
 from pathlib import Path
 import json
 import re
-
 import yaml
 
 home = Path('/data')
@@ -106,44 +104,5 @@ parts.append('\n'.join(managed_lines))
 env_path.write_text('\n\n'.join(parts).rstrip() + '\n', encoding='utf-8')
 PY
 
-TZ="$("${HERMES_PYTHON}" - <<'PY'
-import json
-from pathlib import Path
-
-options = json.loads(Path('/data/options.json').read_text(encoding='utf-8'))
-print((options.get('timezone') or 'UTC'))
-PY
-)"
-export TZ
-export HERMES_DASHBOARD=1
-export HERMES_DASHBOARD_HOST=127.0.0.1
-export HERMES_DASHBOARD_PORT=9120
-export API_SERVER_ENABLED=true
-export API_SERVER_HOST=127.0.0.1
-export API_SERVER_KEY="$(tr -d '\r\n' < "${INTERNAL_API_KEY_FILE}")"
-
-ENABLE_DASHBOARD_TUI="$("${HERMES_PYTHON}" - <<'PY'
-import json
-from pathlib import Path
-
-options = json.loads(Path('/data/options.json').read_text(encoding='utf-8'))
-print('true' if options.get('enable_dashboard_tui') else 'false')
-PY
-)"
-
-ENABLE_TERMINAL="$("${HERMES_PYTHON}" - <<'PY'
-import json
-from pathlib import Path
-
-options = json.loads(Path('/data/options.json').read_text(encoding='utf-8'))
-print('true' if options.get('enable_terminal', True) else 'false')
-PY
-)"
-
-if [ "${ENABLE_DASHBOARD_TUI}" = "true" ]; then
-  export HERMES_DASHBOARD_TUI=1
-fi
-
-export ENABLE_TERMINAL
-
-exec /opt/hermes/docker/entrypoint.sh /addon-run.sh
+# Sla env vars op voor s6-overlay
+echo -n "${TZ}" > /run/s6/container_environment/TZ
