@@ -28,4 +28,6 @@ COPY ingress.conf /etc/nginx/nginx.conf
 COPY landing.html /usr/share/nginx/html/index.html
 COPY addon-run.sh /addon-run.sh
 COPY run.sh /etc/cont-init.d/01-addon-setup.sh
+
 RUN chmod a+x /etc/cont-init.d/01-addon-setup.sh /addon-run.sh
+CMD ["/addon-run.sh"]
